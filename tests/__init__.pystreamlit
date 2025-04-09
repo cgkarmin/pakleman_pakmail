@@ -1,0 +1,59 @@
+# Import pustaka Streamlit (anda perlu install nanti: pip install streamlit)
+import streamlit as st
+
+# == Konfigurasi Asas Halaman (Pilihan) ==
+# st.set_page_config(page_title="Jana Prompt App", layout="wide")
+
+# == Tajuk Utama Aplikasi ==
+st.title("Selamat Datang ke Aplikasi Jana Prompt!")
+
+# == Penerangan Ringkas ==
+st.header("Alat Bantuan untuk Menjana Prompt AI")
+st.write("""
+Selamat menggunakan aplikasi ini!
+Tujuannya adalah untuk membantu anda menyusun dan menjana prompt yang konsisten
+bagi interaksi dengan AI, contohnya untuk watak seperti Pak Leman dan Pak Mail.
+
+*(Ini hanyalah kod permulaan, sila ubah suai mengikut keperluan anda.)*
+""")
+
+# == Contoh Pembahagi ==
+st.divider()
+
+# == Contoh Ruang Input (Akan dibangunkan nanti) ==
+st.subheader("Bahagian Input Prompt (Contoh)")
+prompt_input = st.text_area("Masukkan deskripsi watak atau prompt di sini:")
+if st.button("Jana Prompt"):
+    if prompt_input:
+        st.success("Prompt diterima! (Logik penjanaan belum ditambah)")
+        # Di sini nanti anda akan letak logik untuk memproses input
+        st.write("Anda memasukkan:")
+        st.text(prompt_input)
+    else:
+        st.warning("Sila masukkan deskripsi dahulu.")
+
+# == Contoh Ruang Paparan (Akan dibangunkan nanti) ==
+st.divider()
+st.subheader("Bahagian Paparan Prompt Sedia Ada (Contoh)")
+st.write("Prompt yang disimpan akan dipaparkan di sini nanti...")
+# Contoh data (boleh diganti dengan data sebenar dari fail/database)
+contoh_prompts = {
+    "Pak Leman": "Pak Leman, lelaki berumur 60-an, berkaca mata bulat, misai tebal, selalu pakai songkok tinggi dan baju Melayu cekak musang.",
+    "Pak Mail": "Pak Mail, kurus, lingkungan umur 50-an, sering pakai baju pagoda putih dan kain pelikat."
+}
+pilihan = st.selectbox("Pilih Watak:", options=list(contoh_prompts.keys()))
+if pilihan:
+    st.text_area("Prompt Tersimpan:", value=contoh_prompts[pilihan], height=100)
+
+
+# == Contoh Penggunaan Sidebar (Pilihan) ==
+st.sidebar.header("Menu Navigasi")
+st.sidebar.write("Pautan atau tetapan tambahan boleh diletak di sini.")
+# st.sidebar.button("Butang Sisi")
+
+# == Footer (Pilihan) ==
+st.divider()
+st.caption("Dibangunkan dengan Streamlit")
+
+# Anda boleh terus menambah elemen Streamlit lain di sini
+# Rujuk dokumentasi Streamlit: https://docs.streamlit.io
