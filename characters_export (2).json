@@ -1,0 +1,23 @@
+{
+    "Pak Leman": {
+        "umur": 68,
+        "fizikal": "Tinggi: 1.69 meter. Rambut warna beruban. Tidak bermisai atau berjanggut.",
+        "pakaian": "Kemeja warna tiffany, seluar hitam, pakai capal, berkopiah putih.",
+        "personaliti": "",
+        "prompt_penuh": ""
+    },
+    "Pak Mail": {
+        "umur": 65,
+        "fizikal": "Tinggi: 1.58 meter. Rambut warna putih. Tidak bermisai atau berjanggut. Berkacamata.",
+        "pakaian": "Kemeja warna pink, seluar hitam, pakai capal, bersongkok hitam.",
+        "personaliti": "",
+        "prompt_penuh": ""
+    },
+    "Cikgu Karmin": {
+        "umur": 62,
+        "fizikal": "Berat: 62 kg\nTinggi: 1.70 meter\nTubuh: Tegap, bahunya lebar, \nRambut: Beruban tapi bukan semuanya putih\nMata: agak sepet\nKening: tipis\nHidung: pesek\nDagu: Janggut Kambing\nBibir: Sederhana tebal, tiada misai atas bibir\nGigi: Rata dan bersih (putih)\nKulit: Cerah\nPipi: Agak cengkung, tiada jambang",
+        "pakaian": "Kemeja",
+        "personaliti": "Baju: ",
+        "prompt_penuh": "Berat: 62 kg\nTinggi: 1.70 meter\nTubuh: Tegap, bahunya lebar, \nRambut: Beruban tapi bukan semuanya putih\nMata: agak sepet\nKening: tipis\nHidung: pesek\nDagu: Janggut Kambing\nBibir: Sederhana tebal, tiada misai atas bibir\nGigi: Rata dan bersih (putih)\nKulit: Cerah\nPipi: Agak cengkung, tiada jambang\n\nKemeja berwarna jingga muda; Seluar panjang berwarna khaki; Capal sebagai alas kaki; Cincin akek di jari manis sebelah kanan; Jam digital di pergelangan tangn kiri., \n\n1. Selalu tersenyum; peramah; mesra dengan orang sekeliling; berbudi-bahasa\n2. Pandai petik gitar; ukulele; menyanyi; karang puisi; buat lagu\n3. Dikenali sebagai Raja Pantun Nusantara"
+    }
+}
