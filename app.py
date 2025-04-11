@@ -1,5 +1,5 @@
 # === app.py ===
-# Versi dengan Logik Penjanaan Prompt Bahasa Melayu
+# Versi Akhir (v1) dengan Penjanaan Prompt BM, EN, dan JSON Lengkap
 
 import streamlit as st
 import json
@@ -35,10 +35,13 @@ def load_data(file_path):
                         st.info(f"Watak '{char}' tiada dalam fail data, dimuatkan dari default.")
                         data_updated = True
                     else:
+                        # Pastikan semua kunci dari default ada dalam data dimuat
                         for key, default_value in details.items():
                             if key not in data[char]:
                                 data[char][key] = default_value
-                                data_updated = True
+                                data_updated = True # Tandakan jika ada penambahan
+                # Jika data dikemas kini dengan kunci default, beri pilihan untuk simpan? Buat masa ini tidak.
+                # if data_updated: st.info("Struktur data dikemas kini dengan medan default.")
                 return data
         except json.JSONDecodeError:
             st.error(f"Ralat membaca fail {file_path}. Fail mungkin rosak. Memuatkan data default.")
@@ -57,68 +60,65 @@ def save_data(file_path, data):
             json.dump(data, f, indent=4, ensure_ascii=False)
         return True
     except Exception as e:
-        print(f"Error saving data to {file_path}: {e}")
+        print(f"Error saving data to {file_path}: {e}") # Log ralat ke terminal
         return False
 
-# +++ FUNGSI BARU: Penjana Prompt BM +++
 def generate_prompt_bm(input_data, character_db):
     """Menjana prompt deskriptif dalam Bahasa Melayu."""
     prompt_parts = []
-
-    # 1. Gaya Visual
-    prompt_parts.append(f"Sebuah panel komik dalam [{input_data['visual_style']}].") # Guna kurungan siku untuk gaya
-
-    # 2. Latar Belakang
-    if input_data['background']:
-        prompt_parts.append(f"Berlatarbelakangkan: {input_data['background']}.")
-    else:
-        prompt_parts.append("Latar belakang tidak dinyatakan secara spesifik.")
-
-    # 3. Watak dan Deskripsi mereka
+    prompt_parts.append(f"Sebuah panel komik dalam [{input_data['visual_style']}].")
+    if input_data['background']: prompt_parts.append(f"Berlatarbelakangkan: {input_data['background']}.")
+    else: prompt_parts.append("Latar belakang tidak dinyatakan secara spesifik.")
     if input_data['selected_characters']:
         char_descriptions = []
         for char_name in input_data['selected_characters']:
-            details = character_db.get(char_name, {})
-            desc = f"[{char_name}" # Guna kurungan siku untuk nama watak
+            details = character_db.get(char_name, {}); desc = f"[{char_name}"
             details_list = []
-            # Gabungkan butiran fizikal, pakaian, dll.
             if details.get('fizikal'): details_list.append(details['fizikal'])
             if details.get('pakaian'): details_list.append(f"memakai {details['pakaian']}")
-            if details.get('personaliti'): details_list.append(f"dengan sifat {details['personaliti']}") # Tambah 'sifat' jika ada
-            if details_list:
-                desc += f" ({', '.join(details_list)})"
-            desc += "]" # Tutup kurungan siku nama watak
+            if details.get('personaliti'): details_list.append(f"bersifat {details['personaliti']}")
+            if details_list: desc += f" ({', '.join(details_list)})"
+            desc += "]"
             char_descriptions.append(desc)
         prompt_parts.append(f"Memaparkan watak: {', '.join(char_descriptions)}.")
-
-        # 3.5. (Pilihan) Aksi atau Interaksi asas (boleh diperhalusi lagi)
-        if len(input_data['selected_characters']) > 1:
-             prompt_parts.append(f"Watak-watak tersebut sedang berinteraksi antara satu sama lain.")
-        elif len(input_data['selected_characters']) == 1:
-             prompt_parts.append(f"{input_data['selected_characters'][0]} sedang melakukan sesuatu (aksi tidak dinyatakan).")
-
-    else:
-        prompt_parts.append("Tiada watak spesifik dalam panel ini.")
-
-    # 4. Dialog (Jika Ada) - Nyatakan siapa bercakap
+        if len(input_data['selected_characters']) > 1: prompt_parts.append(f"Watak-watak tersebut sedang berinteraksi antara satu sama lain.")
+        elif len(input_data['selected_characters']) == 1: prompt_parts.append(f"{input_data['selected_characters'][0]} sedang melakukan sesuatu (aksi tidak dinyatakan).")
+    else: prompt_parts.append("Tiada watak spesifik dalam panel ini.")
     if input_data['dialogues']:
-        dialogue_summary = []
-        for char_name, text in input_data['dialogues'].items():
-             dialogue_summary.append(f"{char_name} berkata \"{text}\"")
+        dialogue_summary = [f"{char_name} berkata \"{text}\"" for char_name, text in input_data['dialogues'].items()]
         prompt_parts.append("Dialog yang kedengaran: " + "; ".join(dialogue_summary) + ".")
-        # Nota: Ini untuk deskripsi prompt, bukan untuk AI letak teks dalam imej
-
-    # 5. Teks Tambahan
-    if input_data['extra_text']:
-        prompt_parts.append(f"Teks tambahan seperti kapsyen atau bunyi: \"{input_data['extra_text']}\".")
-
-    # 6. Judul Komik (Jika mahu dimasukkan sebagai konteks)
-    if input_data['comic_title']:
-        prompt_parts.append(f"(Konteks dari komik: '{input_data['comic_title']}')")
-
-    # Gabungkan semua bahagian
+    if input_data['extra_text']: prompt_parts.append(f"Teks tambahan seperti kapsyen atau bunyi: \"{input_data['extra_text']}\".")
+    if input_data['comic_title']: prompt_parts.append(f"(Konteks dari komik: '{input_data['comic_title']}')")
     return " ".join(prompt_parts)
-# ++++++++++++++++++++++++++++++++++++
+
+def generate_prompt_en(input_data, character_db):
+    """Generates a descriptive prompt in English."""
+    prompt_parts = []
+    prompt_parts.append(f"A comic panel in the style of [{input_data['visual_style']}].")
+    if input_data['background']: prompt_parts.append(f"Background: {input_data['background']}.")
+    else: prompt_parts.append("The background is not specifically described.")
+    if input_data['selected_characters']:
+        char_descriptions = []
+        for char_name in input_data['selected_characters']:
+            details = character_db.get(char_name, {}); desc = f"[{char_name}"
+            details_list = []
+            if details.get('umur'): details_list.append(f"around {details['umur']} years old")
+            if details.get('fizikal'): details_list.append(details['fizikal'])
+            if details.get('pakaian'): details_list.append(f"wearing {details['pakaian']}")
+            if details.get('personaliti'): details_list.append(f"with personality traits: {details['personaliti']}")
+            if details_list: desc += f" ({', '.join(details_list)})"
+            desc += "]"
+            char_descriptions.append(desc)
+        prompt_parts.append(f"Featuring characters: {', '.join(char_descriptions)}.")
+        if len(input_data['selected_characters']) > 1: prompt_parts.append(f"The characters are interacting with each other.")
+        elif len(input_data['selected_characters']) == 1: prompt_parts.append(f"{input_data['selected_characters'][0]} is present in the scene, action unspecified.")
+    else: prompt_parts.append("No specific characters are featured in this panel.")
+    if input_data['dialogues']:
+        dialogue_summary = [f"{char_name} says: \"{text}\"" for char_name, text in input_data['dialogues'].items()]
+        prompt_parts.append("Dialogue includes: " + "; ".join(dialogue_summary) + ".")
+    if input_data['extra_text']: prompt_parts.append(f"Additional text (caption/sound): \"{input_data['extra_text']}\".")
+    if input_data['comic_title']: prompt_parts.append(f"(Context from the comic titled: '{input_data['comic_title']}')")
+    return " ".join(prompt_parts)
 
 # === Mulakan Aplikasi Streamlit ===
 
@@ -135,8 +135,7 @@ with tab1:
     st.write("Masukkan butiran untuk menjana prompt bagi satu bingkai komik.")
 
     comic_title = st.text_input("Judul Komik (Keseluruhan):", key="comic_title", value=st.session_state.get('comic_title_val', ''))
-    if comic_title != st.session_state.get('comic_title_val', ''):
-        st.session_state.comic_title_val = comic_title
+    if comic_title != st.session_state.get('comic_title_val', ''): st.session_state.comic_title_val = comic_title
 
     style_options = [
         "Gaya LAT (Kartun Malaysia)", "Gaya Studio Ghibli", "Gaya Suasana Kampung",
@@ -155,54 +154,68 @@ with tab1:
         with st.expander("Dialog Watak (Isi jika perlu)"):
             dialogues_frame1 = {}
             if selected_chars_frame1:
-                for char in selected_chars_frame1:
-                    dialogues_frame1[char] = st.text_input(f"Dialog {char}:", key=f"frame1_dialog_{char}")
-            else:
-                st.info("Pilih sekurang-kurangnya satu watak di atas untuk memasukkan dialog.")
+                for char in selected_chars_frame1: dialogues_frame1[char] = st.text_input(f"Dialog {char}:", key=f"frame1_dialog_{char}")
+            else: st.info("Pilih sekurang-kurangnya satu watak di atas untuk memasukkan dialog.")
         extra_text_frame1 = st.text_input("Teks Tambahan (Kapsyen/Bunyi):", key="frame1_extra")
 
     # --- Butang dan Logik Penjanaan ---
-    if st.button("Jana Prompt untuk Bingkai Ini", key="btn_generate"):
-        st.write("--- Output Prompt ---") # Header untuk output
+    # Tempat untuk paparkan output
+    output_placeholder = st.container()
 
+    if st.button("Jana Prompt untuk Bingkai Ini", key="btn_generate"):
         # Kumpul input
         frame_input_data = {
-            "comic_title": comic_title,
-            "visual_style": selected_style,
-            "frame_number": 1,
-            "selected_characters": selected_chars_frame1,
-            "background": bg_desc_frame1,
-            "dialogues": {char: text for char, text in dialogues_frame1.items() if text}, # Ambil dialog yg diisi shj
+            "comic_title": comic_title, "visual_style": selected_style, "frame_number": 1,
+            "selected_characters": selected_chars_frame1, "background": bg_desc_frame1,
+            "dialogues": {char: text for char, text in dialogues_frame1.items() if text}, # Hanya ambil dialog yang diisi
             "extra_text": extra_text_frame1
         }
 
-        st.success("Input diterima. Menjana prompt...")
-        # (Optional) Papar semula input untuk semakan
-        # st.write("Data Input Bingkai:")
-        # st.json(frame_input_data)
-
-        # === Panggil Fungsi Penjanaan ===
+        # Panggil Fungsi Penjanaan
         prompt_bm_result = generate_prompt_bm(frame_input_data, st.session_state.character_data)
-        prompt_en_result = "[Logik penjanaan EN belum ditambah]" # Placeholder
-        # Jana JSON (contoh mudah: guna input data + prompt BM/EN)
+        prompt_en_result = generate_prompt_en(frame_input_data, st.session_state.character_data)
+
+        # === Logik Penjanaan JSON (Dikemaskini) ===
         try:
+            # Mulakan dengan data input bingkai
             json_output_data = frame_input_data.copy()
+
+            # Tambah prompt yang dijana
             json_output_data["generated_prompt_bm"] = prompt_bm_result
             json_output_data["generated_prompt_en"] = prompt_en_result
+
+            # (Pilihan) Tambah butiran watak yang digunakan dalam bingkai ini
+            selected_char_details = {}
+            for char_name in frame_input_data["selected_characters"]:
+                # Ambil butiran dari session_state, tapi kecualikan 'prompt_penuh' jika tak relevan
+                details_to_include = {k: v for k, v in st.session_state.character_data.get(char_name, {}).items() if k != 'prompt_penuh'}
+                selected_char_details[char_name] = details_to_include
+            json_output_data["character_details_used"] = selected_char_details
+
+            # Tukar ke string JSON yang diformat
             json_output_string = json.dumps(json_output_data, indent=4, ensure_ascii=False)
+
         except Exception as e:
-            json_output_string = f'{{"error": "Gagal menjana JSON: {e}"}}'
+            # Tangani ralat jika proses JSON gagal
+            json_output_string = f'{{"error": "Gagal menjana output JSON.", "detail": "{str(e)}"}}'
+            st.error(f"Ralat semasa menjana JSON: {e}")
         # ================================
 
-        # === Paparkan Hasil Penjanaan ===
-        st.subheader("Hasil Prompt:")
-        col_bm, col_en, col_json = st.columns(3)
-        with col_bm:
-            st.text_area("Prompt Bahasa Melayu", value=prompt_bm_result, height=300, key="output_bm_f1") # Papar hasil BM
-        with col_en:
-            st.text_area("Prompt Bahasa Inggeris", value=prompt_en_result, height=300, key="output_en_f1") # Masih placeholder
-        with col_json:
-            st.code(json_output_string, language="json", line_numbers=True) # Papar hasil JSON
+        # Paparkan Hasil Penjanaan dalam placeholder
+        with output_placeholder:
+            st.success("Prompt berjaya dijana!")
+            st.write("Data Input Bingkai (Untuk Rujukan):") # Papar semula input
+            st.json(frame_input_data) # Guna st.json untuk paparan input yang lebih kemas
+            st.divider()
+            st.subheader("Hasil Prompt:")
+            col_bm, col_en, col_json_out = st.columns(3) # Susun output dalam 3 lajur
+            with col_bm:
+                st.text_area("Prompt Bahasa Melayu", value=prompt_bm_result, height=350, key="output_bm_f1_final")
+            with col_en:
+                st.text_area("Prompt Bahasa Inggeris", value=prompt_en_result, height=350, key="output_en_f1_final")
+            with col_json_out: # Guna nama pembolehubah berbeza untuk elak konflik
+                st.markdown("**Output JSON:**") # Tambah tajuk untuk JSON
+                st.code(json_output_string, language="json", line_numbers=True) # Papar JSON
 
 
 # === TAB 2: Pengurus Data Watak ===
@@ -211,7 +224,6 @@ with tab2:
     st.header("Pengurus Data Watak")
     st.write("Tambah, edit, atau lihat butiran watak yang disimpan.")
     with st.form(key="character_form_tab2", clear_on_submit=False):
-        # ... (kod form sama) ...
         available_characters_tab2 = list(st.session_state.character_data.keys())
         character_options_tab2 = ["Tambah Watak Baru..."] + available_characters_tab2
         selected_char_name_option_tab2 = st.selectbox("Pilih Watak atau Tambah Baru:", options=character_options_tab2, key="sb_select_char_tab2")
@@ -240,7 +252,6 @@ with tab2:
                 if save_data(DATA_FILE, st.session_state.character_data): st.success(f"Perincian untuk '{final_char_name_tab2}' telah berjaya disimpan ke {DATA_FILE}!")
                 else: st.error(f"Gagal menyimpan data ke {DATA_FILE}.")
     st.divider()
-    # == Bahagian Paparan Prompt Sedia Ada ==
     st.header("Lihat Perincian Watak Tersimpan"); display_options_tab2 = list(st.session_state.character_data.keys())
     if not display_options_tab2: st.info("Tiada data watak tersimpan untuk dipaparkan.")
     else:
@@ -252,7 +263,6 @@ with tab2:
             st.write(f"**Pakaian:** {details_to_display_tab2.get('pakaian', 'Tiada data')}"); st.write(f"**Personaliti:** {details_to_display_tab2.get('personaliti', 'Tiada data')}")
             st.text_area("Prompt Penuh Tersimpan:", value=details_to_display_tab2.get('prompt_penuh', '[Tiada data atau akan dijana]'), height=150, disabled=True, key=f"disp_ta_{char_to_display_tab2}_prompt_tab2")
     st.divider()
-    # == Pengurusan Fail Data ==
     st.header("Pengurusan Fail Data"); st.subheader("Simpan Sebagai (Save As)")
     save_as_filename_tab2 = st.text_input("Nama Fail Baru (.json):", value="characters_copy.json", key="ti_save_as_name_tab2")
     if st.button("Simpan Data ke Fail Baru", key="btn_save_as_tab2"):
